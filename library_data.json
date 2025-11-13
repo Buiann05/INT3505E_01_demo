@@ -699,6 +699,34 @@
       "price": 600000,
       "description": "Description for book 50",
       "createdAt": "2025-09-24T12:27:35.853345Z"
+    },
+    {
+      "id": 51,
+      "isbn": "",
+      "title": "Python for AI",
+      "author": "An Bui",
+      "category": "AI/ML",
+      "publisher": "",
+      "publishYear": 2025,
+      "quantity": 5,
+      "available": 5,
+      "price": 250000,
+      "description": "Updated description",
+      "createdAt": "2025-11-13T12:53:38.137574Z"
+    },
+    {
+      "id": 52,
+      "isbn": "",
+      "title": "Python for AI",
+      "author": "An Bui",
+      "category": "AI/ML",
+      "publisher": "",
+      "publishYear": 2025,
+      "quantity": 5,
+      "available": 5,
+      "price": 200000,
+      "description": "",
+      "createdAt": "2025-11-13T13:00:07.670269Z"
     }
   ],
   "borrowings": []
