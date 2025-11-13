@@ -1,0 +1,506 @@
+openapi: 3.0.3
+info:
+  title: Library Management API
+  description: |
+    API đơn giản để quản lý thư viện sách, bao gồm các chức năng:
+    - Quản lý sách (CRUD)
+    - Mượn và trả sách
+    
+    **Sinh viên**: [Tên của bạn]  
+    **MSSV**: [Mã số sinh viên]  
+    **Lớp**: INT3505E_01
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@library.com
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://library-api.example.com/api
+    description: Production server
+
+tags:
+  - name: Books
+    description: Quản lý sách
+  - name: Borrowings
+    description: Quản lý mượn/trả sách
+
+paths:
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Lấy danh sách tất cả sách
+      description: Trả về danh sách tất cả các sách trong thư viện
+      operationId: getAllBooks
+      responses:
+        '200':
+          description: Lấy danh sách thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+              example:
+                - id: 1
+                  title: "Python Programming"
+                  author: "John Smith"
+                  quantity: 5
+                  available: 3
+                - id: 2
+                  title: "Flask Web Development"
+                  author: "Miguel Grinberg"
+                  quantity: 3
+                  available: 2
+        '500':
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Books
+      summary: Thêm sách mới
+      description: Thêm một cuốn sách mới vào thư viện
+      operationId: createBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+            example:
+              title: "Data Structures and Algorithms"
+              author: "Robert Sedgewick"
+              quantity: 5
+      responses:
+        '201':
+          description: Thêm sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              example:
+                id: 3
+                title: "Data Structures and Algorithms"
+                author: "Robert Sedgewick"
+                quantity: 5
+                available: 5
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Thiếu trường bắt buộc: title"
+        '500':
+          description: Lỗi server
+
+  /books/{bookId}:
+    get:
+      tags:
+        - Books
+      summary: Lấy thông tin sách theo ID
+      description: Trả về thông tin chi tiết của một cuốn sách
+      operationId: getBookById
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: ID của sách cần lấy
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Lấy thông tin thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              example:
+                id: 1
+                title: "Python Programming"
+                author: "John Smith"
+                quantity: 5
+                available: 3
+        '404':
+          description: Không tìm thấy sách
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Không tìm thấy sách với ID: 1"
+
+    put:
+      tags:
+        - Books
+      summary: Cập nhật thông tin sách
+      description: Cập nhật thông tin của một cuốn sách hiện có
+      operationId: updateBook
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: ID của sách cần cập nhật
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+            example:
+              title: "Python Programming - 2nd Edition"
+              author: "John Smith"
+              quantity: 7
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Không tìm thấy sách
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Books
+      summary: Xóa sách
+      description: Xóa một cuốn sách khỏi thư viện (chỉ khi không có sách nào đang được mượn)
+      operationId: deleteBook
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          description: ID của sách cần xóa
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Xóa sách thành công"
+        '400':
+          description: Không thể xóa sách đang được mượn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Không thể xóa sách đang được mượn"
+        '404':
+          description: Không tìm thấy sách
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /borrowings:
+    get:
+      tags:
+        - Borrowings
+      summary: Lấy danh sách mượn/trả
+      description: Trả về danh sách tất cả các phiếu mượn/trả sách
+      operationId: getAllBorrowings
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Lọc theo trạng thái (borrowed/returned)
+          schema:
+            type: string
+            enum:
+              - borrowed
+              - returned
+          example: borrowed
+      responses:
+        '200':
+          description: Lấy danh sách thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Borrowing'
+              example:
+                - id: 1
+                  bookId: 1
+                  bookTitle: "Python Programming"
+                  borrowerName: "Nguyen Van A"
+                  borrowDate: "2024-11-01T10:00:00Z"
+                  dueDate: "2024-11-15"
+                  returnDate: null
+                  returned: false
+                - id: 2
+                  bookId: 2
+                  bookTitle: "Flask Web Development"
+                  borrowerName: "Tran Thi B"
+                  borrowDate: "2024-10-20T14:30:00Z"
+                  dueDate: "2024-11-03"
+                  returnDate: "2024-11-02T09:15:00Z"
+                  returned: true
+
+    post:
+      tags:
+        - Borrowings
+      summary: Mượn sách
+      description: Tạo phiếu mượn sách mới
+      operationId: borrowBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowingInput'
+            example:
+              bookId: 1
+              borrowerName: "Nguyen Van C"
+      responses:
+        '201':
+          description: Mượn sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing'
+              example:
+                id: 3
+                bookId: 1
+                bookTitle: "Python Programming"
+                borrowerName: "Nguyen Van C"
+                borrowDate: "2024-11-13T15:00:00Z"
+                dueDate: "2024-11-27"
+                returnDate: null
+                returned: false
+        '400':
+          description: Sách không có sẵn hoặc dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Sách đã hết, không thể mượn"
+        '404':
+          description: Không tìm thấy sách
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /borrowings/{borrowingId}/return:
+    post:
+      tags:
+        - Borrowings
+      summary: Trả sách
+      description: Đánh dấu một phiếu mượn là đã trả sách
+      operationId: returnBook
+      parameters:
+        - name: borrowingId
+          in: path
+          required: true
+          description: ID của phiếu mượn
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Trả sách thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing'
+              example:
+                id: 1
+                bookId: 1
+                bookTitle: "Python Programming"
+                borrowerName: "Nguyen Van A"
+                borrowDate: "2024-11-01T10:00:00Z"
+                dueDate: "2024-11-15"
+                returnDate: "2024-11-13T16:00:00Z"
+                returned: true
+        '400':
+          description: Sách đã được trả rồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Sách đã được trả rồi"
+        '404':
+          description: Không tìm thấy phiếu mượn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+        - quantity
+        - available
+      properties:
+        id:
+          type: integer
+          description: ID duy nhất của sách
+          example: 1
+        title:
+          type: string
+          description: Tên sách
+          example: "Python Programming"
+          minLength: 1
+          maxLength: 255
+        author:
+          type: string
+          description: Tác giả
+          example: "John Smith"
+          minLength: 1
+          maxLength: 255
+        quantity:
+          type: integer
+          description: Tổng số lượng sách
+          minimum: 1
+          example: 5
+        available:
+          type: integer
+          description: Số lượng sách còn có thể mượn
+          minimum: 0
+          example: 3
+
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+        - quantity
+      properties:
+        title:
+          type: string
+          description: Tên sách
+          example: "Python Programming"
+          minLength: 1
+          maxLength: 255
+        author:
+          type: string
+          description: Tác giả
+          example: "John Smith"
+          minLength: 1
+          maxLength: 255
+        quantity:
+          type: integer
+          description: Số lượng sách
+          minimum: 1
+          example: 5
+
+    Borrowing:
+      type: object
+      required:
+        - id
+        - bookId
+        - bookTitle
+        - borrowerName
+        - borrowDate
+        - dueDate
+        - returned
+      properties:
+        id:
+          type: integer
+          description: ID duy nhất của phiếu mượn
+          example: 1
+        bookId:
+          type: integer
+          description: ID của sách được mượn
+          example: 1
+        bookTitle:
+          type: string
+          description: Tên sách được mượn
+          example: "Python Programming"
+        borrowerName:
+          type: string
+          description: Tên người mượn
+          example: "Nguyen Van A"
+          minLength: 1
+          maxLength: 255
+        borrowDate:
+          type: string
+          format: date-time
+          description: Ngày mượn sách
+          example: "2024-11-01T10:00:00Z"
+        dueDate:
+          type: string
+          format: date
+          description: Hạn trả sách
+          example: "2024-11-15"
+        returnDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Ngày trả sách (null nếu chưa trả)
+          example: "2024-11-13T16:00:00Z"
+        returned:
+          type: boolean
+          description: Trạng thái đã trả hay chưa
+          example: false
+
+    BorrowingInput:
+      type: object
+      required:
+        - bookId
+        - borrowerName
+      properties:
+        bookId:
+          type: integer
+          description: ID của sách muốn mượn
+          minimum: 1
+          example: 1
+        borrowerName:
+          type: string
+          description: Tên người mượn
+          minLength: 1
+          maxLength: 255
+          example: "Nguyen Van A"
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Thông báo lỗi
+          example: "Không tìm thấy tài nguyên"
