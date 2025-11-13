@@ -11,7 +11,7 @@ app = Flask(__name__)
 # File lưu trữ dữ liệu
 DATA_FILE = 'library_data.json'
 
-# ==================== Swagger UI Configuration ====================
+# Swagger UI Configuration
 SWAGGER_URL = '/api/docs'
 API_URL = '/static/openapi.yaml'
 
@@ -26,7 +26,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 )
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-# ==================== Data Management ====================
+# Data Management
 
 def init_data():
     """Khởi tạo dữ liệu mẫu"""
@@ -63,7 +63,7 @@ def save_data(data):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-# ==================== Pagination Utilities ====================
+# Pagination Utilities 
 
 def encode_cursor(book_id):
     """Encode cursor for cursor-based pagination"""
@@ -151,7 +151,7 @@ def paginate_cursor(items, cursor, limit):
         }
     }
 
-# ==================== Search & Filter Utilities ====================
+# Search & Filter Utilities 
 
 def search_books(books, query):
     """Tìm kiếm sách theo title, author, isbn"""
@@ -200,7 +200,7 @@ def sort_books(books, sort_by, order):
     
     return sorted(books, key=lambda x: x.get(sort_by, ''), reverse=reverse)
 
-# ==================== ROOT ENDPOINT ====================
+# ROOT ENDPOINT 
 
 @app.route('/')
 def home():
@@ -218,7 +218,7 @@ def home():
         }
     }), 200
 
-# ==================== BOOKS API - OFFSET/LIMIT ====================
+# BOOKS API - OFFSET/LIMIT 
 
 @app.route('/api/books', methods=['GET'])
 def api_get_books_offset():
@@ -253,7 +253,7 @@ def api_get_books_offset():
         print(f"❌ Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== BOOKS API - PAGE NUMBER ====================
+# BOOKS API - PAGE NUMBER 
 
 @app.route('/api/books/pages', methods=['GET'])
 def api_get_books_pages():
@@ -288,7 +288,7 @@ def api_get_books_pages():
         print(f"❌ Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== BOOKS API - CURSOR BASED ====================
+# BOOKS API - CURSOR BASED
 
 @app.route('/api/books/cursor', methods=['GET'])
 def api_get_books_cursor():
@@ -323,7 +323,7 @@ def api_get_books_cursor():
         print(f"❌ Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== SEARCH API ====================
+# SEARCH API 
 
 @app.route('/api/search', methods=['GET'])
 def api_search_books():
@@ -394,7 +394,7 @@ def api_search_books():
         print(f"❌ Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# ==================== BOOK DETAILS ====================
+# BOOK DETAILS
 
 @app.route('/api/books/<int:book_id>', methods=['GET'])
 def api_get_book(book_id):
@@ -411,7 +411,7 @@ def api_get_book(book_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ==================== BOOK CREATE/UPDATE/DELETE ====================
+# BOOK CREATE/UPDATE/DELETE
 
 @app.route('/api/books', methods=['POST'])
 def api_create_book():
@@ -498,7 +498,7 @@ def api_delete_book(book_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ==================== STATISTICS ====================
+# STATISTICS
 
 @app.route('/api/stats', methods=['GET'])
 def api_get_stats():
@@ -526,7 +526,7 @@ def api_get_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ==================== ERROR HANDLERS ====================
+# ERROR HANDLERS
 
 @app.errorhandler(404)
 def not_found(error):
@@ -536,7 +536,7 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Lỗi server nội bộ'}), 500
 
-# ==================== MAIN ====================
+# MAIN
 
 if __name__ == '__main__':
     print("\n" + "="*70)
