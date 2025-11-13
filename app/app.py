@@ -52,7 +52,7 @@ def init_data():
             'borrowings': []
         }
         save_data(data)
-        print(f"✅ Đã khởi tạo {len(data['books'])} sách mẫu")
+        print(f" Đã khởi tạo {len(data['books'])} sách mẫu")
     return load_data()
 
 def load_data():
@@ -244,13 +244,13 @@ def api_get_books_offset():
         # Paginate
         result = paginate_offset(books, limit, offset)
         
-        print(f"📚 Offset pagination: limit={limit}, offset={offset}, total={result['pagination']['total']}")
+        print(f" Offset pagination: limit={limit}, offset={offset}, total={result['pagination']['total']}")
         return jsonify(result), 200
         
     except ValueError as e:
         return jsonify({'error': 'Invalid parameters'}), 400
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f" Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 # BOOKS API - PAGE NUMBER 
@@ -279,13 +279,13 @@ def api_get_books_pages():
         # Paginate
         result = paginate_page(books, page, size)
         
-        print(f"📚 Page pagination: page={page}, size={size}, total={result['page']['totalElements']}")
+        print(f" Page pagination: page={page}, size={size}, total={result['page']['totalElements']}")
         return jsonify(result), 200
         
     except ValueError as e:
         return jsonify({'error': 'Invalid parameters'}), 400
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f" Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 # BOOKS API - CURSOR BASED
@@ -314,13 +314,13 @@ def api_get_books_cursor():
         # Paginate
         result = paginate_cursor(books, cursor, limit)
         
-        print(f"📚 Cursor pagination: cursor={cursor[:10] if cursor else 'None'}..., limit={limit}")
+        print(f" Cursor pagination: cursor={cursor[:10] if cursor else 'None'}..., limit={limit}")
         return jsonify(result), 200
         
     except ValueError as e:
         return jsonify({'error': 'Invalid parameters'}), 400
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f" Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 # SEARCH API 
@@ -367,11 +367,11 @@ def api_search_books():
         # Apply search
         if query:
             books = search_books(books, query)
-            print(f"🔍 Search: '{query}' → {len(books)} results")
+            print(f" Search: '{query}' → {len(books)} results")
         
         # Apply filters
         books = filter_books(books, filters)
-        print(f"🔍 Filters applied → {len(books)} results")
+        print(f" Filters applied → {len(books)} results")
         
         # Sort
         books = sort_books(books, sort_by, order)
@@ -391,14 +391,14 @@ def api_search_books():
     except ValueError as e:
         return jsonify({'error': 'Invalid parameters'}), 400
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f" Error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 # BOOK DETAILS
 
 @app.route('/api/books/<int:book_id>', methods=['GET'])
 def api_get_book(book_id):
-    """GET /api/books/{id} - Lấy chi tiết sách"""
+    """Lấy chi tiết sách"""
     try:
         data = load_data()
         book = next((b for b in data['books'] if b['id'] == book_id), None)
@@ -406,7 +406,7 @@ def api_get_book(book_id):
         if not book:
             return jsonify({'error': f'Không tìm thấy sách với ID: {book_id}'}), 404
         
-        print(f"📖 Get book: {book['title']} (ID: {book_id})")
+        print(f" Get book: {book['title']} (ID: {book_id})")
         return jsonify(book), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -415,7 +415,7 @@ def api_get_book(book_id):
 
 @app.route('/api/books', methods=['POST'])
 def api_create_book():
-    """POST /api/books - Thêm sách mới"""
+    """Thêm sách mới"""
     try:
         if not request.json:
             return jsonify({'error': 'Request phải là JSON'}), 400
@@ -452,7 +452,7 @@ def api_create_book():
 
 @app.route('/api/books/<int:book_id>', methods=['PUT'])
 def api_update_book(book_id):
-    """PUT /api/books/{id} - Cập nhật sách"""
+    """Cập nhật sách"""
     try:
         if not request.json:
             return jsonify({'error': 'Request phải là JSON'}), 400
@@ -475,14 +475,14 @@ def api_update_book(book_id):
             book['available'] += (new_qty - old_qty)
         
         save_data(data)
-        print(f"✅ Updated book: {book['title']} (ID: {book_id})")
+        print(f" Updated book: {book['title']} (ID: {book_id})")
         return jsonify(book), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/books/<int:book_id>', methods=['DELETE'])
 def api_delete_book(book_id):
-    """DELETE /api/books/{id} - Xóa sách"""
+    """Xóa sách"""
     try:
         data = load_data()
         book = next((b for b in data['books'] if b['id'] == book_id), None)
@@ -502,7 +502,7 @@ def api_delete_book(book_id):
 
 @app.route('/api/stats', methods=['GET'])
 def api_get_stats():
-    """GET /api/stats - Thống kê hệ thống"""
+    """Thống kê hệ thống"""
     try:
         data = load_data()
         
@@ -540,27 +540,27 @@ def internal_error(error):
 
 if __name__ == '__main__':
     print("\n" + "="*70)
-    print("🚀 LIBRARY API - Pagination & Search")
+    print("LIBRARY API - Pagination & Search")
     print("="*70)
     
     init_data()
     
-    print("\n📍 API Endpoints:")
-    print("   🏠 Home: http://127.0.0.1:5000/")
-    print("   📚 Swagger: http://127.0.0.1:5000/api/docs")
-    print("\n   📖 Books APIs:")
+    print("\n API Endpoints:")
+    print("Home: http://127.0.0.1:5000/")
+    print("Swagger: http://127.0.0.1:5000/api/docs")
+    print("\n Books APIs:")
     print("      - Offset: GET /api/books?limit=10&offset=0")
     print("      - Page:   GET /api/books/pages?page=1&size=10")
     print("      - Cursor: GET /api/books/cursor?cursor=xxx&limit=10")
-    print("   🔍 Search: GET /api/search?q=python&category=Programming")
-    print("   📊 Stats:  GET /api/stats")
+    print("Search: GET /api/search?q=python&category=Programming")
+    print("Stats:  GET /api/stats")
     
-    print("\n💡 Test Examples:")
+    print("\n Test Examples:")
     print("   curl 'http://127.0.0.1:5000/api/books?limit=5&offset=0'")
     print("   curl 'http://127.0.0.1:5000/api/books/pages?page=2&size=10'")
     print("   curl 'http://127.0.0.1:5000/api/search?q=python&available=true'")
     
-    print("\n⏸️  Stop: Ctrl+C")
+    print("\n Stop: Ctrl+C")
     print("="*70 + "\n")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
