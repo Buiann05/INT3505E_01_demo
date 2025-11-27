@@ -1,0 +1,22 @@
+2025-11-27 11:39:48,283 - [INFO] - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.2.128:5000
+2025-11-27 11:39:48,285 - [INFO] - [33mPress CTRL+C to quit[0m
+2025-11-27 11:39:48,288 - [INFO] -  * Restarting with stat
+2025-11-27 11:39:48,757 - [WARNING] -  * Debugger is active!
+2025-11-27 11:39:48,759 - [INFO] -  * Debugger PIN: 935-285-751
+2025-11-27 11:39:57,044 - [INFO] - 127.0.0.1 - GET /api/v2/books/1 - 200 - 0.0000s
+2025-11-27 11:39:57,045 - [INFO] - 127.0.0.1 - - [27/Nov/2025 11:39:57] "GET /api/v2/books/1 HTTP/1.1" 200 -
+2025-11-27 12:28:13,066 - [INFO] -  * Detected change in 'c:\\Users\\Admin\\Documents\\GitHub\\INT3505E_01_demo\\app\\app.py', reloading
+2025-11-27 12:28:13,254 - [INFO] -  * Restarting with stat
+2025-11-27 12:28:14,178 - [WARNING] -  * Debugger is active!
+2025-11-27 12:28:14,185 - [INFO] -  * Debugger PIN: 935-285-751
+2025-11-27 12:28:19,211 - [INFO] -  * Detected change in 'c:\\Users\\Admin\\Documents\\GitHub\\INT3505E_01_demo\\app\\app.py', reloading
+2025-11-27 12:28:19,303 - [INFO] -  * Restarting with stat
+2025-11-27 12:28:19,883 - [WARNING] -  * Debugger is active!
+2025-11-27 12:28:19,891 - [INFO] -  * Debugger PIN: 935-285-751
+2025-11-27 12:28:22,916 - [INFO] -  * Detected change in 'c:\\Users\\Admin\\Documents\\GitHub\\INT3505E_01_demo\\app\\app.py', reloading
+2025-11-27 12:28:23,025 - [INFO] -  * Restarting with stat
+2025-11-27 12:28:23,690 - [WARNING] -  * Debugger is active!
+2025-11-27 12:28:23,695 - [INFO] -  * Debugger PIN: 935-285-751
