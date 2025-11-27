@@ -383,26 +383,15 @@ def home():
 @app.route('/api/books', methods=['GET'])
 @limiter.limit("10 per minute") # Rate Limit riêng cho endpoint này
 def api_get_books_offset():
-    """GET /api/books - Offset/Limit Pagination
-    
-    Query Parameters:
-    - limit: số items per page (default: 10, max: 100)
-    - offset: vị trí bắt đầu (default: 0)
-    - sort: field để sort (title, author, publishYear, price, createdAt)
-    - order: asc hoặc desc (default: asc)
-    """
     try:
-        # Get parameters
         limit = min(int(request.args.get('limit', 10)), 100)
         offset = max(int(request.args.get('offset', 0)), 0)
         sort_by = request.args.get('sort', 'id')
         order = request.args.get('order', 'asc')
         
-        # Load and sort data
         data = load_data()
         books = sort_books(data['books'], sort_by, order)
         
-        # Paginate
         result = paginate_offset(books, limit, offset)
         
         print(f" Offset pagination: limit={limit}, offset={offset}, total={result['pagination']['total']}")
@@ -419,26 +408,15 @@ def api_get_books_offset():
 @app.route('/api/books/pages', methods=['GET'])
 @limiter.limit("10 per minute")
 def api_get_books_pages():
-    """GET /api/books/pages - Page Number Pagination
-    
-    Query Parameters:
-    - page: số trang (default: 1)
-    - size: số items per page (default: 10, max: 100)
-    - sort: field để sort
-    - order: asc hoặc desc
-    """
     try:
-        # Get parameters
         page = max(int(request.args.get('page', 1)), 1)
         size = min(int(request.args.get('size', 10)), 100)
         sort_by = request.args.get('sort', 'id')
         order = request.args.get('order', 'asc')
         
-        # Load and sort data
         data = load_data()
         books = sort_books(data['books'], sort_by, order)
         
-        # Paginate
         result = paginate_page(books, page, size)
         
         print(f" Page pagination: page={page}, size={size}, total={result['page']['totalElements']}")
@@ -454,26 +432,15 @@ def api_get_books_pages():
 
 @app.route('/api/books/cursor', methods=['GET'])
 def api_get_books_cursor():
-    """GET /api/books/cursor - Cursor-based Pagination
-    
-    Query Parameters:
-    - cursor: cursor token (optional)
-    - limit: số items per page (default: 10, max: 100)
-    - sort: field để sort
-    - order: asc hoặc desc
-    """
     try:
-        # Get parameters
         cursor = request.args.get('cursor')
         limit = min(int(request.args.get('limit', 10)), 100)
         sort_by = request.args.get('sort', 'id')
         order = request.args.get('order', 'asc')
         
-        # Load and sort data
         data = load_data()
         books = sort_books(data['books'], sort_by, order)
         
-        # Paginate
         result = paginate_cursor(books, cursor, limit)
         
         print(f" Cursor pagination: cursor={cursor[:10] if cursor else 'None'}..., limit={limit}")
@@ -490,25 +457,9 @@ def api_get_books_cursor():
 @app.route('/api/search', methods=['GET'])
 @limiter.limit("5 per minute") 
 def api_search_books():
-    """GET /api/search - Tìm kiếm và lọc sách
-    
-    Query Parameters:
-    - q: search query (tìm trong title, author, isbn, description)
-    - category: lọc theo category
-    - author: lọc theo author
-    - minYear: năm xuất bản tối thiểu
-    - maxYear: năm xuất bản tối đa
-    - available: chỉ lấy sách còn (true/false)
-    - sort: field để sort
-    - order: asc/desc
-    - limit: items per page
-    - offset: vị trí bắt đầu
-    """
     try:
-        # Get search parameters
         query = request.args.get('q', '').strip()
         
-        # Get filter parameters
         filters = {
             'category': request.args.get('category'),
             'author': request.args.get('author'),
@@ -517,32 +468,25 @@ def api_search_books():
             'available': request.args.get('available')
         }
         
-        # Get pagination parameters
         limit = min(int(request.args.get('limit', 10)), 100)
         offset = max(int(request.args.get('offset', 0)), 0)
         sort_by = request.args.get('sort', 'id')
         order = request.args.get('order', 'asc')
         
-        # Load data
         data = load_data()
         books = data['books']
         
-        # Apply search
         if query:
             books = search_books(books, query)
             print(f" Search: '{query}' → {len(books)} results")
         
-        # Apply filters
         books = filter_books(books, filters)
         print(f" Filters applied → {len(books)} results")
         
-        # Sort
         books = sort_books(books, sort_by, order)
         
-        # Paginate
         result = paginate_offset(books, limit, offset)
         
-        # Add search metadata
         result['search'] = {
             'query': query,
             'filters': {k: v for k, v in filters.items() if v},
@@ -562,11 +506,6 @@ def api_search_books():
 @app.route('/api/v1/books', methods=['GET'])
 @deprecated(V1_SUNSET_DATE, '/api/v2/books', 'v1')
 def get_books_v1():
-    """
-    API v1 - Get all books
-    DEPRECATED: Will be removed on 2025-12-01
-    Use /api/v2/books instead
-    """
     data = load_data()
     books = [format_book_v1(book) for book in data['books']]
     
@@ -576,7 +515,6 @@ def get_books_v1():
         'count': len(books)
     }
     
-    # Add deprecation warning
     result = add_deprecation_warning_v1(result)
     
     print(f" v1 API called: GET /api/v1/books (DEPRECATED)")
@@ -585,10 +523,6 @@ def get_books_v1():
 @app.route('/api/v1/books/<int:book_id>', methods=['GET'])
 @deprecated(V1_SUNSET_DATE, '/api/v2/books', 'v1')
 def get_book_v1(book_id):
-    """
-    API v1 - Get book by ID
-    DEPRECATED: Use /api/v2/books/{id} instead
-    """
     data = load_data()
     book = next((b for b in data['books'] if b['id'] == book_id), None)
     
@@ -614,10 +548,6 @@ def get_book_v1(book_id):
 @app.route('/api/books', methods=['POST'])
 @limiter.limit("3 per minute")
 def create_book_v1():
-    """
-    API v1 - Create book
-    DEPRECATED: Use /api/v2/books instead
-    """
     if not request.json:
         result = add_deprecation_warning_v1({
             'status': 'error',
@@ -625,7 +555,6 @@ def create_book_v1():
         })
         return jsonify(result), 400
     
-    # v1 uses snake_case
     required = ['book_title', 'book_author', 'total_quantity']
     for field in required:
         if field not in request.json:
@@ -662,13 +591,8 @@ def create_book_v1():
 @app.route('/api/v2/books', methods=['GET'])
 @limiter.limit("30 per minute")
 def get_books_v2():
-    """
-    API v2 - Get all books
-    Current stable version
-    """
     data = load_data()
-    
-    # Pagination support (v2 feature)
+
     limit = min(int(request.args.get('limit', 20)), 100)
     offset = max(int(request.args.get('offset', 0)), 0)
     
@@ -697,10 +621,6 @@ def get_books_v2():
 
 @app.route('/api/v2/books/<int:book_id>', methods=['GET'])
 def get_book_v2(book_id):
-    """
-    API v2 - Get book by ID
-    Current stable version
-    """
     data = load_data()
     book = next((b for b in data['books'] if b['id'] == book_id), None)
     
@@ -719,10 +639,6 @@ def get_book_v2(book_id):
 @app.route('/api/v2/books', methods=['POST'])
 @limiter.limit("5 per minute")
 def create_book_v2():
-    """
-    API v2 - Create book
-    Current stable version
-    """
     if not request.json:
         return jsonify({
             'error': {
@@ -732,7 +648,6 @@ def create_book_v2():
             }
         }), 400
     
-    # v2 uses camelCase
     required = ['title', 'author', 'quantity']
     missing = [f for f in required if f not in request.json]
     
@@ -765,7 +680,6 @@ def create_book_v2():
 
 @app.route('/api/v2/books/<int:book_id>', methods=['PUT'])
 def update_book_v2(book_id):
-    """API v2 - Update book"""
     data = load_data()
     book = next((b for b in data['books'] if b['id'] == book_id), None)
     
@@ -777,7 +691,6 @@ def update_book_v2(book_id):
             }
         }), 404
     
-    # Update fields
     if 'title' in request.json:
         book['title'] = request.json['title']
     if 'author' in request.json:
@@ -793,7 +706,6 @@ def update_book_v2(book_id):
 
 @app.route('/api/v2/books/<int:book_id>', methods=['DELETE'])
 def delete_book_v2(book_id):
-    """API v2 - Delete book"""
     data = load_data()
     book = next((b for b in data['books'] if b['id'] == book_id), None)
     
@@ -815,10 +727,6 @@ def delete_book_v2(book_id):
 
 @app.route('/api/compare/<int:book_id>', methods=['GET'])
 def compare_versions(book_id):
-    """
-    Compare how the same book is represented in v1 vs v2
-    Useful for understanding migration
-    """
     data = load_data()
     book = next((b for b in data['books'] if b['id'] == book_id), None)
     
@@ -839,11 +747,6 @@ def compare_versions(book_id):
 
 @app.route('/api/migration/status', methods=['GET'])
 def migration_status():
-    """
-    Show migration status and recommendations
-    """
-    # Get API version usage stats (simplified)
-    # In production, track this in database
     
     days_until_sunset = (datetime.strptime(V1_SUNSET_DATE, '%Y-%m-%d') - datetime.now()).days
     
@@ -879,7 +782,6 @@ def migration_status():
 
 @app.route('/api/stats', methods=['GET'])
 def api_get_stats():
-    """Thống kê hệ thống"""
     try:
         data = load_data()
         
